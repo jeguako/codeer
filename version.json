@@ -1,0 +1,57 @@
+{
+  "version": "2.0.0",
+  "releaseDate": "2026-03-13",
+  "changelog": "Пользовательские категории, колесо баланса, напоминания о посте (аийам аль-бид, пн/чт), тусклый таймер до Рамадана, автообновление",
+  "files": [
+    {
+      "name": "core.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/core.js"
+    },
+    {
+      "name": "theme.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/theme.js"
+    },
+    {
+      "name": "settings.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/settings.js"
+    },
+    {
+      "name": "balance.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/balance.js"
+    },
+    {
+      "name": "updater.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/updater.js"
+    },
+    {
+      "name": "widget.small.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/widget.small.js"
+    },
+    {
+      "name": "widget.medium.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/widget.medium.js"
+    },
+    {
+      "name": "widget.large.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/widget.large.js"
+    },
+    {
+      "name": "widget.lockscreen.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/widget.lockscreen.js"
+    },
+    {
+      "name": "Ramadan Widget.js",
+      "dir": "root",
+      "url": "https://raw.githubusercontent.com/jeguako/codeer/main/Ramadan%20Widget.js"
+    }
+  ]
+}

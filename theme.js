@@ -1,3 +1,5 @@
+// theme.js — стили виджета
+
 function background() {
   const g = new LinearGradient()
   g.colors = [
@@ -8,12 +10,28 @@ function background() {
   return g
 }
 
-function text(stack, txt, size = 14, bold = false) {
+// Добавляет текст в стек. Возвращает элемент для дополнительной настройки.
+// color: экземпляр Color или null (белый по умолчанию)
+function text(stack, txt, size = 14, bold = false, color = null) {
   const t = stack.addText(txt)
-  t.textColor = Color.white()
-  t.font = bold
-    ? Font.boldSystemFont(size)
-    : Font.systemFont(size)
+  t.textColor = color || Color.white()
+  t.font = bold ? Font.boldSystemFont(size) : Font.systemFont(size)
+  return t
 }
 
-module.exports = { background, text }
+// Приглушённый серый — как подпись «восход»
+function dimColor() {
+  return new Color("#666666")
+}
+
+// Акцентный цвет (золотой/янтарный)
+function accentColor() {
+  return new Color("#FFD700", 0.85)
+}
+
+// Тонкий серый для подсказок
+function subtleColor() {
+  return new Color("#8a8a8a")
+}
+
+module.exports = { background, text, dimColor, accentColor, subtleColor }

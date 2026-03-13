@@ -1,56 +1,84 @@
 // widget.small.js
 
-const core = importModule("RamadanWidget/core")
-const theme = importModule("theme.js")
+const theme = importModule("theme")
 
 module.exports.render = async (core) => {
   const data = await core.load()
-  const widget = new ListWidget()
+  const w = new ListWidget()
+  w.backgroundGradient = theme.background()
+  w.setPadding(12, 12, 12, 12)
 
-  // BACKGROUND
-  widget.backgroundGradient = theme.background()
-  widget.setPadding(12, 12, 12, 12)
-
-  const stack = widget.addStack()
+  const stack = w.addStack()
   stack.layoutVertically()
   stack.centerAlignContent()
-
   stack.addSpacer()
 
-  const moon = stack.addText("🌙")
-  moon.font = Font.systemFont(42)
-  moon.textColor = Color.white()
+  // Луна
+  const moon = stack.addText(data.isRamadan ? "🌒" : "🌙")
+  moon.font = Font.systemFont(36)
   moon.centerAlignText()
 
   stack.addSpacer(4)
 
-  const title = stack.addText("РАМАДАН")
-  title.font = Font.boldSystemFont(28)
-  title.textColor = Color.white()
-  title.centerAlignText()
+  if (data.isRamadan) {
+    // ── Режим Рамадана ───────────────────────────────────
+    const title = stack.addText("РАМАДАН")
+    title.font = Font.boldSystemFont(22)
+    title.textColor = Color.white()
+    title.centerAlignText()
 
-  stack.addSpacer(2)
+    stack.addSpacer(2)
 
-  const sub = stack.addText("осталось")
-  sub.font = Font.systemFont(13)
-  sub.textColor = Color.white()
-  sub.centerAlignText()
+    const hijri = stack.addText(data.hijriDate || "")
+    hijri.font = Font.systemFont(10)
+    hijri.textColor = new Color("#cccccc")
+    hijri.centerAlignText()
 
-  stack.addSpacer(2)
+    if (data.prayers && data.prayers.Maghrib) {
+      stack.addSpacer(4)
+      const iftar = stack.addText(`Ифтар ${data.prayers.Maghrib}`)
+      iftar.font = Font.boldSystemFont(13)
+      iftar.textColor = theme.accentColor()
+      iftar.centerAlignText()
+    }
 
-  const days = stack.addText(`~ ${data.daysLeft} дней`)
-  days.font = Font.boldSystemFont(28)
-  days.textColor = Color.white()
-  days.centerAlignText()
+  } else {
+    // ── Обычный режим (вне Рамадана) ──────────────────────
+    const hijri = stack.addText(data.hijriDate || "")
+    hijri.font = Font.systemFont(11)
+    hijri.textColor = new Color("#cccccc")
+    hijri.centerAlignText()
 
-  stack.addSpacer(6)
+    stack.addSpacer(3)
 
-  const hijri = stack.addText(data.hijriDate || "")
-  hijri.font = Font.systemFont(11)
-  hijri.textColor = new Color("#cccccc")
-  hijri.centerAlignText()
+    // Григорианская дата
+    const dateStr = data.now.toLocaleDateString("ru-RU", {
+      day: "numeric", month: "short"
+    })
+    const dateText = stack.addText(dateStr)
+    dateText.font = Font.systemFont(12)
+    dateText.textColor = Color.white()
+    dateText.centerAlignText()
+
+    stack.addSpacer(2)
+
+    // Приглушённый обратный отсчёт до Рамадана (как слово «восход»)
+    const cdText = stack.addText(`🌒 ${data.daysLeft} дн.`)
+    cdText.font = Font.systemFont(10)
+    cdText.textColor = theme.dimColor()
+    cdText.centerAlignText()
+
+    // Лёгкое напоминание о желательном посте (не навязчивое)
+    if (data.isAyyamAlBid || data.isMondayOrThursday) {
+      stack.addSpacer(4)
+      const hint = data.isAyyamAlBid ? "🌙 Аийам аль-Бид" : "📅 Сунна: пн/чт"
+      const hintText = stack.addText(hint)
+      hintText.font = Font.systemFont(9)
+      hintText.textColor = theme.subtleColor()
+      hintText.centerAlignText()
+    }
+  }
 
   stack.addSpacer()
-
-  return widget
+  return w
 }
