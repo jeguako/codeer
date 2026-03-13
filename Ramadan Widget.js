@@ -2,7 +2,7 @@
 // Ramadan Widget v2.0.0
 //
 // ⚙️ НАСТРОЙКА: укажи свой публичный GitHub-репозиторий
-const GITHUB_RAW = "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main"
+const GITHUB_RAW = "https://raw.githubusercontent.com/jeguako/codeer/main"
 
 // ─────────────────────────────────────────────────────
 //  САМОУСТАНОВКА — при первом запуске скачивает модули

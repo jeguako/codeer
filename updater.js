@@ -16,7 +16,7 @@
 // }
 
 const VERSION_JSON_URL =
-  "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/version.json"
+  "https://raw.githubusercontent.com/jeguako/codeer/main/version.json"
 
 const fm    = FileManager.iCloud()
 const root  = fm.documentsDirectory()
