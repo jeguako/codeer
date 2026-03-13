@@ -1,0 +1,45 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.presets {
+  display: flex;
+  gap: 6px;
+}
+
+.preset {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+
+.preset:hover {
+  background: rgba(124, 92, 252, 0.15);
+  border-color: var(--accent);
+  color: var(--accent2);
+}
+
+.inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inputs input {
+  width: 140px;
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.sep {
+  color: var(--text3);
+  font-size: 16px;
+}
