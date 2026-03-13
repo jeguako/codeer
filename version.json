@@ -1,0 +1,57 @@
+{
+  "version": "2.0.0",
+  "releaseDate": "2026-03-13",
+  "changelog": "Пользовательские категории, колесо баланса, напоминания о посте (аийам аль-бид, пн/чт), тусклый таймер до Рамадана, автообновление",
+  "files": [
+    {
+      "name": "core.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/core.js"
+    },
+    {
+      "name": "theme.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/theme.js"
+    },
+    {
+      "name": "settings.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/settings.js"
+    },
+    {
+      "name": "balance.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/balance.js"
+    },
+    {
+      "name": "updater.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/updater.js"
+    },
+    {
+      "name": "widget.small.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/widget.small.js"
+    },
+    {
+      "name": "widget.medium.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/widget.medium.js"
+    },
+    {
+      "name": "widget.large.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/widget.large.js"
+    },
+    {
+      "name": "widget.lockscreen.js",
+      "dir": "module",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/widget.lockscreen.js"
+    },
+    {
+      "name": "Ramadan Widget.js",
+      "dir": "root",
+      "url": "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main/Ramadan%20Widget.js"
+    }
+  ]
+}
