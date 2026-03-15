@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CashFlow WB</title>
+<style>
+/* ═══ RESET & VARS ═══════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;
+  --card:#1e1e35;--card2:#252545;--border:#2d2d50;
+  --text:#e8e8f0;--text2:#9898b8;--text3:#5555808;
+  --accent:#7c5cfc;--accent2:#9b7dff;
+  --green:#2dd36f;--red:#eb445a;--yellow:#ffc409;--orange:#ff6b35;--blue:#428cff;
+  --r:16px;--r2:10px;
+}
+html,body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:15px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:inherit;border:none;outline:none}
+input,select{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:var(--r2);padding:10px 14px;font-size:14px;font-family:inherit;outline:none;width:100%;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--accent)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+/* ═══ LAYOUT ═════════════════════════════════════════════════════ */
+#app{display:flex;min-height:100vh}
+/* Sidebar */
+#sidebar{width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;transition:transform .3s}
+.logo{display:flex;align-items:center;gap:10px;padding:22px 18px;border-bottom:1px solid var(--border)}
+.logo-icon{font-size:24px}
+.logo-text{font-size:17px;font-weight:700;background:linear-gradient(135deg,var(--accent2),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav.side-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 13px;border-radius:var(--r2);color:var(--text2);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;border:none;background:transparent;text-align:left;width:100%}
+.nav-item:hover{background:var(--card2);color:var(--text)}
+.nav-item.active{background:rgba(124,92,252,.18);color:var(--accent2)}
+.nav-icon{font-size:17px;width:22px;text-align:center}
+/* Main */
+#main{flex:1;margin-left:220px;min-height:100vh;overflow-x:hidden}
+/* Mobile nav */
+#mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mob-nav-items{display:flex}
+.mob-item{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--text3);font-size:10px;flex:1;padding:4px 2px;cursor:pointer;transition:color .15s;border:none;background:transparent}
+.mob-item.active{color:var(--accent2)}
+.mob-icon{font-size:20px}
+/* Page wrapper */
+.page{padding:24px 28px 32px;max-width:1400px;display:none}
+.page.active{display:block}
+/* ═══ COMPONENTS ═══════════════════════════════════════════════ */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.page-title{font-size:26px;font-weight:700;margin-bottom:3px}
+.page-sub{font-size:13px;color:var(--text2)}
+/* Metrics grid */
+.metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:22px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;transition:border-color .15s}
+.metric:hover{border-color:var(--accent)}
+.metric-head{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.metric-icon{font-size:17px}
+.metric-label{font-size:12px;color:var(--text2);font-weight:500}
+.metric-value{font-size:22px;font-weight:700;line-height:1.2}
+.metric-sub{font-size:11px;color:var(--text3);margin-top:3px}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;margin-bottom:18px}
+.card-title{font-size:16px;font-weight:600;margin-bottom:14px}
+/* Section row 2 cols */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+/* Expense list */
+.exp-list{display:flex;flex-direction:column;gap:9px}
+.exp-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)}
+.exp-row:last-child{border:none}
+.exp-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.exp-name{flex:1;font-size:13px;color:var(--text2)}
+.exp-val{font-size:13px;font-weight:600}
+/* Progress bar */
+.progress-item{margin-bottom:12px}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:5px}
+.progress-name{font-size:13px;font-weight:500}
+.progress-val{font-size:13px;font-weight:600;color:var(--green)}
+.progress-bar{height:6px;background:var(--bg2);border-radius:3px}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--blue));transition:width .5s}
+.progress-stats{display:flex;gap:14px;font-size:11px;color:var(--text3);margin-top:3px}
+/* Table */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--bg2);color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap}
+tr:last-child td{border:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.code{font-family:monospace;font-size:11px;background:var(--bg2);padding:2px 6px;border-radius:4px;color:var(--accent2)}
+/* Colors */
+.c-green{color:var(--green);font-weight:600}
+.c-red{color:var(--red);font-weight:600}
+.c-orange{color:var(--orange);font-weight:600}
+.c-yellow{color:var(--yellow)}
+.c-blue{color:var(--blue)}
+/* States */
+.loading-state,.empty-state{text-align:center;color:var(--text2);padding:36px 20px;font-size:14px}
+.loading-state::before{content:'⏳ '}
+.empty-state::before{content:'📭 '}
+.error-box{background:rgba(235,68,90,.1);border:1px solid rgba(235,68,90,.25);color:var(--red);padding:12px 16px;border-radius:var(--r2);font-size:13px;margin-bottom:16px}
+/* Search bar */
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.search-bar input{max-width:260px}
+/* Badge */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-green{background:rgba(45,211,111,.15);color:var(--green)}
+.badge-red{background:rgba(235,68,90,.15);color:var(--red)}
+.badge-blue{background:rgba(66,140,255,.15);color:var(--blue)}
+.badge-yellow{background:rgba(255,196,9,.15);color:var(--yellow)}
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{padding:8px 16px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+/* Toast */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:20px;font-size:13px;z-index:999;opacity:0;pointer-events:none;transition:all .3s;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* Mini chart bars */
+.bar-chart{display:flex;align-items:flex-end;gap:3px;height:60px;margin-top:12px}
+.bar{flex:1;background:var(--accent);border-radius:2px 2px 0 0;min-width:6px;transition:height .5s}
+/* Number card large */
+.kpi-big{font-size:32px;font-weight:800;line-height:1;margin:8px 0 4px}
+/* ═══ RESPONSIVE ══════════════════════════════════════════════════ */
+@media(max-width:900px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:none}
+  #main{margin-left:0}
+  #mobile-nav{display:block}
+  .page{padding:16px 16px 88px}
+  .row2{grid-template-columns:1fr}
+  .metrics{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .page-header{flex-direction:column}
+}
+@media(min-width:901px){
+  #sidebar{display:flex}
+}
+/* Sidebar overlay */
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+#sidebar-overlay.show{display:block}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ SIDEBAR ══════════════════════════════════════════════════ -->
+  <aside id="sidebar">
+    <div class="logo">
+      <span class="logo-icon">💸</span>
+      <span class="logo-text">CashFlow WB</span>
+    </div>
+    <nav class="side-nav" id="side-nav"></nav>
+    <div style="padding:14px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)" id="company-name">CashFlow WB</div>
+  </aside>
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ══ MAIN ═════════════════════════════════════════════════════ -->
+  <main id="main">
+
+    <!-- Mobile top bar -->
+    <div style="display:none;padding:14px 16px;background:var(--bg2);border-bottom:1px solid var(--border);align-items:center;gap:12px;position:sticky;top:0;z-index:50" id="mobile-header">
+      <button onclick="openSidebar()" style="background:transparent;color:var(--text2);font-size:22px;padding:0">☰</button>
+      <span style="font-weight:700;font-size:16px;background:linear-gradient(135deg,var(--accent2),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent">💸 CashFlow WB</span>
+    </div>
+
+    <!-- ── Главная ──────────────────────────────────────────────── -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🏠 Главная</div>
+          <div class="page-sub">Финансовая аналитика Wildberries</div>
+        </div>
+        <button onclick="loadDashboard()" style="background:var(--card2);border:1px solid var(--border);color:var(--text2);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500">🔄 Обновить</button>
+      </div>
+      <div id="dashboard-content"><div class="loading-state">Загружаем данные...</div></div>
+    </div>
+
+    <!-- ── P&L / ДДС ────────────────────────────────────────────── -->
+    <div class="page" id="page-pnl">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📊 P&L / ДДС</div>
+          <div class="page-sub">Прибыли, убытки и движение денег</div>
+        </div>
+      </div>
+      <div id="pnl-content"><div class="loading-state">Загружаем...</div></div>
+    </div>
+
+    <!-- ── Реализации ──────────────────────────────────────────── -->
+    <div class="page" id="page-realiz">
+      <div class="page-header">
+        <div>
+          <div class="page-title">💰 Реализации</div>
+          <div class="page-sub">Топ товаров по выручке WB</div>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="realiz-search" placeholder="🔍 Поиск по артикулу..." oninput="filterTable('realiz')" style="max-width:260px">
+      </div>
+      <div id="realiz-content"><div class="loading-state">Загружаем...</div></div>
+    </div>
+
+    <!-- ── Хранение ────────────────────────────────────────────── -->
+    <div class="page" id="page-storage">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🏪 Хранение</div>
+          <div class="page-sub">Платное хранение по товарам</div>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="storage-search" placeholder="🔍 Поиск..." oninput="filterTable('storage')">
+      </div>
+      <div id="storage-content"><div class="loading-state">Загружаем...</div></div>
+    </div>
+
+    <!-- ── Реклама ─────────────────────────────────────────────── -->
+    <div class="page" id="page-ads">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📣 Реклама</div>
+          <div class="page-sub">ВБ.Продвижение — статистика</div>
+        </div>
+      </div>
+      <div id="ads-content"><div class="loading-state">Загружаем...</div></div>
+    </div>
+
+    <!-- ── Операции ────────────────────────────────────────────── -->
+    <div class="page" id="page-ops">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📝 Операции</div>
+          <div class="page-sub">Движение денег (ДДС)</div>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="ops-search" placeholder="🔍 Поиск..." oninput="filterTable('ops')">
+      </div>
+      <div id="ops-content"><div class="loading-state">Загружаем...</div></div>
+    </div>
+
+    <!-- ── Юнитка ──────────────────────────────────────────────── -->
+    <div class="page" id="page-unit">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🧮 Юнит-экономика</div>
+          <div class="page-sub">Экономика по каждому товару</div>
+        </div>
+      </div>
+      <div id="unit-content"><div class="loading-state">Загружаем...</div></div>
+    </div>
+
+    <!-- ── Артикулы ────────────────────────────────────────────── -->
+    <div class="page" id="page-articles">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📦 Артикулы</div>
+          <div class="page-sub">Список товаров</div>
+        </div>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="articles-search" placeholder="🔍 Поиск по артикулу..." oninput="filterTable('articles')">
+      </div>
+      <div id="articles-content"><div class="loading-state">Загружаем...</div></div>
+    </div>
+
+  </main>
+
+  <!-- ══ MOBILE NAV ════════════════════════════════════════════════ -->
+  <nav id="mobile-nav">
+    <div class="mob-nav-items" id="mob-nav"></div>
+  </nav>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════════════════════════
+const PAGES = [
+  { id: 'dashboard', icon: '🏠', label: 'Главная',    mob: true  },
+  { id: 'realiz',    icon: '💰', label: 'Реализации', mob: true  },
+  { id: 'storage',   icon: '🏪', label: 'Хранение',   mob: true  },
+  { id: 'ads',       icon: '📣', label: 'Реклама',    mob: true  },
+  { id: 'ops',       icon: '📝', label: 'Операции',   mob: true  },
+  { id: 'pnl',       icon: '📊', label: 'P&L / ДДС',  mob: false },
+  { id: 'unit',      icon: '🧮', label: 'Юнитка',     mob: false },
+  { id: 'articles',  icon: '📦', label: 'Артикулы',   mob: false },
+];
+
+let currentPage = 'dashboard';
+let tableData = {}; // { pageId: rawData[] }
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function buildNav() {
+  const sideNav = document.getElementById('side-nav');
+  const mobNav  = document.getElementById('mob-nav');
+  sideNav.innerHTML = '';
+  mobNav.innerHTML  = '';
+  PAGES.forEach(p => {
+    // Sidebar
+    const btn = document.createElement('button');
+    btn.className = 'nav-item' + (p.id === currentPage ? ' active' : '');
+    btn.innerHTML = `<span class="nav-icon">${p.icon}</span><span>${p.label}</span>`;
+    btn.onclick = () => navigate(p.id);
+    sideNav.appendChild(btn);
+    // Mobile
+    if (p.mob) {
+      const mb = document.createElement('button');
+      mb.className = 'mob-item' + (p.id === currentPage ? ' active' : '');
+      mb.innerHTML = `<span class="mob-icon">${p.icon}</span><span>${p.label}</span>`;
+      mb.onclick = () => navigate(p.id);
+      mobNav.appendChild(mb);
+    }
+  });
+}
+
+function navigate(pageId) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('page-' + pageId);
+  if (el) el.classList.add('active');
+  currentPage = pageId;
+  buildNav();
+  closeSidebar();
+  // Lazy load
+  loadPageData(pageId);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SIDEBAR (MOBILE)
+// ═══════════════════════════════════════════════════════════════
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FORMAT HELPERS
+// ═══════════════════════════════════════════════════════════════
+function fmtRub(n) {
+  const v = parseFloat(n) || 0;
+  if (Math.abs(v) >= 1e6) return (v/1e6).toFixed(1) + ' млн ₽';
+  if (Math.abs(v) >= 1e3) return (v/1e3).toFixed(1) + ' тыс ₽';
+  return v.toFixed(0) + ' ₽';
+}
+function fmtNum(n) { return (parseInt(n)||0).toLocaleString('ru'); }
+function fmtPct(n) { return (parseFloat(n)||0).toFixed(1) + '%'; }
+function colorNum(n, inv) {
+  const v = parseFloat(n)||0;
+  const pos = inv ? v < 0 : v >= 0;
+  return pos ? 'c-green' : 'c-red';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════════
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GENERIC TABLE RENDERER
+// ═══════════════════════════════════════════════════════════════
+function renderTable(containerId, rows, colDefs, searchId) {
+  const el = document.getElementById(containerId);
+  if (!rows || rows.length === 0) {
+    el.innerHTML = '<div class="empty-state">Нет данных в таблице</div>';
+    return;
+  }
+  // Store for search
+  const pageKey = containerId.replace('-content','');
+  tableData[pageKey] = rows;
+
+  const headers = colDefs.map(c => `<th>${c.label}</th>`).join('');
+  const body = rows.map(row => {
+    const cells = colDefs.map(c => {
+      const val = row[c.key] !== undefined ? row[c.key] : (getFirstMatchKey(row, c.keys||[]) || '');
+      let disp = val;
+      if (c.fmt === 'rub')  disp = val !== '' && val !== 0 ? fmtRub(val)  : '—';
+      if (c.fmt === 'num')  disp = val !== '' ? fmtNum(val) : '—';
+      if (c.fmt === 'pct')  disp = val !== '' ? fmtPct(val) : '—';
+      if (c.fmt === 'code') disp = `<span class="code">${val||'—'}</span>`;
+      const cls = c.color ? ` class="${c.color(val)}"` : (c.cls ? ` class="${c.cls}"` : '');
+      return `<td${cls}>${disp}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+
+  el.innerHTML = `<div class="table-wrap"><table><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table></div><div style="font-size:12px;color:var(--text3);padding:10px 4px">Показано: ${rows.length} строк</div>`;
+}
+
+function getFirstMatchKey(obj, keys) {
+  for (const k of keys) {
+    const found = Object.keys(obj).find(ok => ok.toLowerCase().includes(k.toLowerCase()));
+    if (found && obj[found] !== '' && obj[found] !== null && obj[found] !== undefined) return obj[found];
+  }
+  return '';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SEARCH FILTER
+// ═══════════════════════════════════════════════════════════════
+function filterTable(pageKey) {
+  const searchEl = document.getElementById(pageKey + '-search');
+  if (!searchEl) return;
+  const q = searchEl.value.toLowerCase();
+  const rows = tableData[pageKey] || [];
+  const filtered = q ? rows.filter(row => Object.values(row).some(v => String(v).toLowerCase().includes(q))) : rows;
+  const el = document.getElementById(pageKey + '-content');
+  const tbody = el && el.querySelector('tbody');
+  if (!tbody) return;
+  // Just filter existing rows
+  const allRows = el.querySelectorAll('tbody tr');
+  allRows.forEach(tr => {
+    const text = tr.textContent.toLowerCase();
+    tr.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+function loadDashboard() {
+  document.getElementById('dashboard-content').innerHTML = '<div class="loading-state">Загружаем данные...</div>';
+  google.script.run
+    .withSuccessHandler(renderDashboard)
+    .withFailureHandler(err => {
+      document.getElementById('dashboard-content').innerHTML = `<div class="error-box">❌ ${err.message||err}</div>`;
+    })
+    .getDashboard();
+}
+
+function renderDashboard(d) {
+  if (!d.ok) {
+    document.getElementById('dashboard-content').innerHTML = `<div class="error-box">❌ ${d.error}</div>`;
+    return;
+  }
+  if (d.companyName) document.getElementById('company-name').textContent = d.companyName;
+  const m = d.metrics;
+  const totalExp = (m.logistics||0) + (m.storage||0) + (m.ads||0) + (m.penalties||0) + (m.acquiring||0);
+
+  const html = `
+  <!-- KPI метрики -->
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-head"><span class="metric-icon">💰</span><span class="metric-label">Выручка к выплате</span></div>
+      <div class="metric-value c-green">${fmtRub(m.revenue)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-head"><span class="metric-icon">✅</span><span class="metric-label">Прибыль</span></div>
+      <div class="metric-value ${m.profit>=0?'c-green':'c-red'}">${fmtRub(m.profit)}</div>
+      <div class="metric-sub">Маржа ${fmtPct(m.margin)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-head"><span class="metric-icon">📦</span><span class="metric-label">Продаж</span></div>
+      <div class="metric-value">${fmtNum(m.sales)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-head"><span class="metric-icon">↩️</span><span class="metric-label">Возвратов</span></div>
+      <div class="metric-value ${m.returns>0?'c-red':''}">${fmtNum(m.returns)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-head"><span class="metric-icon">💸</span><span class="metric-label">Всего расходы</span></div>
+      <div class="metric-value c-red">${fmtRub(totalExp)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-head"><span class="metric-icon">📊</span><span class="metric-label">Маржа</span></div>
+      <div class="metric-value ${m.margin>=15?'c-green':m.margin>=5?'c-yellow':'c-red'}">${fmtPct(m.margin)}</div>
+    </div>
+  </div>
+
+  <!-- Расходы + Операции -->
+  <div class="row2">
+    <div class="card">
+      <div class="card-title">📉 Структура расходов</div>
+      <div class="exp-list">
+        <div class="exp-row">
+          <span class="exp-dot" style="background:#eb445a"></span>
+          <span class="exp-name">🚚 Логистика WB</span>
+          <span class="exp-val c-red">${fmtRub(m.logistics)}</span>
+        </div>
+        <div class="exp-row">
+          <span class="exp-dot" style="background:#ff6b35"></span>
+          <span class="exp-name">🏪 Платное хранение</span>
+          <span class="exp-val c-orange">${fmtRub(m.storage)}</span>
+        </div>
+        <div class="exp-row">
+          <span class="exp-dot" style="background:#ffc409"></span>
+          <span class="exp-name">📣 Реклама</span>
+          <span class="exp-val c-yellow">${fmtRub(m.ads)}</span>
+        </div>
+        <div class="exp-row">
+          <span class="exp-dot" style="background:#428cff"></span>
+          <span class="exp-name">⚠️ Штрафы</span>
+          <span class="exp-val c-blue">${fmtRub(m.penalties)}</span>
+        </div>
+        <div class="exp-row">
+          <span class="exp-dot" style="background:#7c5cfc"></span>
+          <span class="exp-name">💳 Эквайринг</span>
+          <span class="exp-val" style="color:var(--accent2)">${fmtRub(m.acquiring)}</span>
+        </div>
+        <div class="exp-row" style="font-weight:700">
+          <span class="exp-name">Итого расходы</span>
+          <span class="exp-val c-red">${fmtRub(totalExp)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💹 Итог</div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Выручка к выплате</div>
+        <div class="kpi-big c-green">${fmtRub(m.revenue)}</div>
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Прибыль</div>
+        <div class="kpi-big ${m.profit>=0?'c-green':'c-red'}">${fmtRub(m.profit)}</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:var(--r2);padding:12px 14px;margin-top:12px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+          <span style="color:var(--text2)">Выручка</span><span class="c-green">${fmtRub(m.revenue)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+          <span style="color:var(--text2)">Расходы</span><span class="c-red">−${fmtRub(totalExp)}</span>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;justify-content:space-between;font-size:14px;font-weight:700">
+          <span>Прибыль</span><span class="${m.profit>=0?'c-green':'c-red'}">${fmtRub(m.profit)}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size:12px;color:var(--text3);padding:4px 0">Обновлено: ${d.lastUpdate}</div>
+  `;
+  document.getElementById('dashboard-content').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  REALIZ (Реализации по товарам)
+// ═══════════════════════════════════════════════════════════════
+function loadRealiz() {
+  document.getElementById('realiz-content').innerHTML = '<div class="loading-state">Загружаем реализации...</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('realiz-content').innerHTML = `<div class="error-box">❌ ${d.error}</div>`; return; }
+      toast(`Загружено ${d.data.length} товаров`);
+      renderTable('realiz-content', d.data, [
+        { key:'article',  label:'Артикул',   fmt:'code' },
+        { key:'subject',  label:'Категория' },
+        { key:'sales',    label:'Продажи',   fmt:'num',  cls:'c-green' },
+        { key:'returns',  label:'Возвраты',  fmt:'num',  cls:'c-red' },
+        { key:'revenue',  label:'Выручка',   fmt:'rub',  cls:'c-green' },
+        { key:'logistics',label:'Логистика', fmt:'rub',  cls:'c-orange' },
+        { key:'penalties',label:'Штрафы',    fmt:'rub',  cls:'c-red' },
+      ]);
+    })
+    .withFailureHandler(err => { document.getElementById('realiz-content').innerHTML = `<div class="error-box">❌ ${err.message||err}</div>`; })
+    .getRealizByProduct(300);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STORAGE
+// ═══════════════════════════════════════════════════════════════
+function loadStorage() {
+  document.getElementById('storage-content').innerHTML = '<div class="loading-state">Загружаем...</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('storage-content').innerHTML = `<div class="error-box">❌ ${d.error}</div>`; return; }
+      toast(`Хранение: ${d.data.length} строк`);
+      if (!d.data.length) { document.getElementById('storage-content').innerHTML = '<div class="empty-state">Нет данных на листе «Платное хранение»</div>'; return; }
+      // Dynamic columns from first row
+      const keys = Object.keys(d.data[0]).slice(0, 10);
+      const cols = keys.map(k => ({ key: k, label: k.replace(/_/g,' ') }));
+      renderTable('storage-content', d.data, cols);
+    })
+    .withFailureHandler(err => { document.getElementById('storage-content').innerHTML = `<div class="error-box">❌ ${err.message||err}</div>`; })
+    .getStorage(500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ADS
+// ═══════════════════════════════════════════════════════════════
+function loadAds() {
+  document.getElementById('ads-content').innerHTML = '<div class="loading-state">Загружаем...</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('ads-content').innerHTML = `<div class="error-box">❌ ${d.error}</div>`; return; }
+      toast(`Реклама: ${d.data.length} строк`);
+      if (!d.data.length) { document.getElementById('ads-content').innerHTML = '<div class="empty-state">Нет данных на листе «ВБ.Продвижение»</div>'; return; }
+      const keys = Object.keys(d.data[0]).slice(0, 12);
+      const cols = keys.map(k => ({ key: k, label: k.replace(/_/g,' ') }));
+      renderTable('ads-content', d.data, cols);
+    })
+    .withFailureHandler(err => { document.getElementById('ads-content').innerHTML = `<div class="error-box">❌ ${err.message||err}</div>`; })
+    .getAds(500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  OPERATIONS
+// ═══════════════════════════════════════════════════════════════
+function loadOps() {
+  document.getElementById('ops-content').innerHTML = '<div class="loading-state">Загружаем операции...</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('ops-content').innerHTML = `<div class="error-box">❌ ${d.error}</div>`; return; }
+      toast(`Операции: ${d.data.length} строк`);
+      if (!d.data.length) { document.getElementById('ops-content').innerHTML = '<div class="empty-state">Нет данных на листе «Операции»</div>'; return; }
+      const keys = Object.keys(d.data[0]).slice(0, 10);
+      const cols = keys.map(k => ({ key: k, label: k.replace(/_/g,' ') }));
+      renderTable('ops-content', d.data, cols);
+    })
+    .withFailureHandler(err => { document.getElementById('ops-content').innerHTML = `<div class="error-box">❌ ${err.message||err}</div>`; })
+    .getOperations(500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  P&L
+// ═══════════════════════════════════════════════════════════════
+function loadPnl() {
+  document.getElementById('pnl-content').innerHTML = '<div class="loading-state">Загружаем P&L...</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('pnl-content').innerHTML = `<div class="error-box">❌ ${d.error}</div>`; return; }
+      if (!d.data.length) { document.getElementById('pnl-content').innerHTML = '<div class="empty-state">Нет данных на листе «P&LДДС»</div>'; return; }
+      const keys = Object.keys(d.data[0]).slice(0, 15);
+      const cols = keys.map(k => ({ key: k, label: k.replace(/_/g,' ') }));
+      renderTable('pnl-content', d.data, cols);
+    })
+    .withFailureHandler(err => { document.getElementById('pnl-content').innerHTML = `<div class="error-box">❌ ${err.message||err}</div>`; })
+    .getPnL();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  UNIT ECON
+// ═══════════════════════════════════════════════════════════════
+function loadUnit() {
+  document.getElementById('unit-content').innerHTML = '<div class="loading-state">Загружаем юнитку...</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('unit-content').innerHTML = `<div class="error-box">❌ ${d.error}</div>`; return; }
+      if (!d.data.length) { document.getElementById('unit-content').innerHTML = '<div class="empty-state">Нет данных на листе «Юнитка»</div>'; return; }
+      const keys = Object.keys(d.data[0]).slice(0, 12);
+      const cols = keys.map(k => ({ key: k, label: k.replace(/_/g,' ') }));
+      renderTable('unit-content', d.data, cols);
+    })
+    .withFailureHandler(err => { document.getElementById('unit-content').innerHTML = `<div class="error-box">❌ ${err.message||err}</div>`; })
+    .getUnitEcon(200);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ARTICLES
+// ═══════════════════════════════════════════════════════════════
+function loadArticles() {
+  document.getElementById('articles-content').innerHTML = '<div class="loading-state">Загружаем артикулы...</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('articles-content').innerHTML = `<div class="error-box">❌ ${d.error}</div>`; return; }
+      if (!d.data.length) { document.getElementById('articles-content').innerHTML = '<div class="empty-state">Нет данных на листе «Артикулы»</div>'; return; }
+      const keys = Object.keys(d.data[0]).slice(0, 12);
+      const cols = keys.map(k => ({ key: k, label: k.replace(/_/g,' ') }));
+      renderTable('articles-content', d.data, cols);
+    })
+    .withFailureHandler(err => { document.getElementById('articles-content').innerHTML = `<div class="error-box">❌ ${err.message||err}</div>`; })
+    .getArticles(300);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LAZY LOADER
+// ═══════════════════════════════════════════════════════════════
+const loaded = new Set(['dashboard']);
+
+function loadPageData(pageId) {
+  if (loaded.has(pageId)) return;
+  loaded.add(pageId);
+  switch(pageId) {
+    case 'realiz':   loadRealiz();   break;
+    case 'storage':  loadStorage();  break;
+    case 'ads':      loadAds();      break;
+    case 'ops':      loadOps();      break;
+    case 'pnl':      loadPnl();      break;
+    case 'unit':     loadUnit();     break;
+    case 'articles': loadArticles(); break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MOBILE HEADER VISIBILITY
+// ═══════════════════════════════════════════════════════════════
+function updateMobileHeader() {
+  const mh = document.getElementById('mobile-header');
+  if (window.innerWidth <= 900) mh.style.display = 'flex';
+  else mh.style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+window.addEventListener('resize', updateMobileHeader);
+window.addEventListener('DOMContentLoaded', () => {
+  buildNav();
+  updateMobileHeader();
+  loadDashboard();
+});
+</script>
+</body>
+</html>
