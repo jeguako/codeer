@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <title>CashFlowWB — Настройки</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #1c1c1d;
+      --card:        #2c2c2e;
+      --card2:       #3a3a3c;
+      --border:      rgba(255,255,255,0.10);
+      --text:        #ffffff;
+      --text-sec:    #8c8c8d;
+      --primary:     #3377FF;
+      --primary-dim: rgba(51,119,255,0.15);
+      --green:       #32d74b;
+      --red:         #ff453a;
+      --orange:      #ff9f0a;
+      --divider:     rgba(255,255,255,0.08);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 90px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 16px 8px;
+    }
+    .header-title { font-size: 20px; font-weight: 700; }
+    .header-sub   { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+
+    /* ── SECTION ── */
+    .section { padding: 12px 16px 0; }
+    .section-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.8px;
+      color: var(--text-sec); text-transform: uppercase; margin-bottom: 8px;
+      padding: 0 4px;
+    }
+
+    /* ── CARD (группировка) ── */
+    .settings-card {
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .settings-row {
+      display: flex; align-items: center;
+      padding: 14px 16px; gap: 12px;
+      border-bottom: 1px solid var(--divider);
+      min-height: 52px;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .settings-row-icon svg { width: 17px; height: 17px; fill: #fff; }
+    .settings-row-icon.blue   { background: var(--primary); }
+    .settings-row-icon.green  { background: var(--green); }
+    .settings-row-icon.orange { background: var(--orange); }
+    .settings-row-icon.red    { background: var(--red); }
+    .settings-row-icon.gray   { background: #636366; }
+    .settings-row-body  { flex: 1; min-width: 0; }
+    .settings-row-label { font-size: 14px; font-weight: 500; }
+    .settings-row-hint  { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
+    .settings-row-value { font-size: 13px; color: var(--text-sec); text-align: right; flex-shrink: 0; }
+    .chevron {
+      width: 16px; height: 16px; fill: var(--text-sec); opacity: 0.5; flex-shrink: 0;
+    }
+
+    /* ── INPUTS ── */
+    .input-wrap { padding: 14px 16px; }
+    .input-label { font-size: 12px; color: var(--text-sec); margin-bottom: 6px; }
+    .input-field {
+      width: 100%; background: var(--card2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 11px 14px; color: var(--text);
+      font-family: inherit; font-size: 14px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-field:focus { border-color: var(--primary); }
+    .input-field::placeholder { color: var(--text-sec); }
+    .input-hint { font-size: 11px; color: var(--text-sec); margin-top: 6px; padding: 0 2px; }
+
+    /* ── КНОПКИ ── */
+    .btn {
+      display: block; width: 100%;
+      background: var(--primary); color: #fff; border: none;
+      border-radius: 12px; font-family: inherit; font-size: 15px;
+      font-weight: 600; padding: 14px; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:active { opacity: 0.8; }
+    .btn.btn-secondary {
+      background: var(--card); color: var(--primary);
+      border: 1px solid rgba(51,119,255,0.3);
+    }
+    .btn.btn-danger { background: rgba(255,69,58,0.15); color: var(--red); }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+
+    /* ── ДАТА ── */
+    .date-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      padding: 0 16px 14px;
+    }
+    .date-field {
+      background: var(--card2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 12px;
+      color: var(--text); font-family: inherit; font-size: 13px;
+      outline: none; width: 100%;
+    }
+    .date-field:focus { border-color: var(--primary); }
+
+    /* ── СТАТУС / ПРОГРЕСС ── */
+    .status-bar {
+      margin: 8px 16px 0;
+      background: var(--card);
+      border-radius: 12px; padding: 12px 14px;
+      font-size: 12px; color: var(--text-sec);
+      display: none;
+    }
+    .status-bar.visible { display: block; }
+    .status-bar.success { background: rgba(50,215,75,0.12); color: var(--green); }
+    .status-bar.error   { background: rgba(255,69,58,0.12); color: var(--red); }
+    .status-bar.loading { background: rgba(51,119,255,0.10); color: var(--primary); }
+
+    .progress-wrap {
+      height: 4px; background: var(--card2); border-radius: 2px;
+      margin-top: 8px; overflow: hidden; display: none;
+    }
+    .progress-wrap.visible { display: block; }
+    .progress-bar {
+      height: 100%; background: var(--primary); border-radius: 2px;
+      width: 0%; transition: width 0.5s ease;
+    }
+
+    /* ── INFO BLOCK ── */
+    .info-block {
+      margin: 0 16px;
+      background: rgba(255,159,10,0.10);
+      border: 1px solid rgba(255,159,10,0.25);
+      border-radius: 12px; padding: 12px 14px;
+      font-size: 12px; color: var(--orange); line-height: 1.6;
+    }
+    .info-block b { font-weight: 600; }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--card); border-top: 1px solid var(--border);
+      display: flex; z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 4px; padding: 10px 0 12px;
+      cursor: pointer; color: var(--text-sec); font-size: 10px;
+      font-weight: 500; letter-spacing: 0.3px; border: none;
+      background: none; font-family: inherit; transition: color 0.2s;
+    }
+    .nav-item.active { color: var(--primary); }
+    .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
+
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .px-16 { padding: 0 16px; }
+  </style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="header">
+  <div>
+    <div class="header-title">Настройки</div>
+    <div class="header-sub">CashFlowWB · конфигурация</div>
+  </div>
+  <div style="width:36px;height:36px;background:var(--card);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#8c8c8d">
+      <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+    </svg>
+  </div>
+</header>
+
+<!-- ══════ 1. API ТОКЕН ══════ -->
+<div class="section">
+  <div class="section-label">API-токен Wildberries</div>
+  <div class="settings-card">
+
+    <!-- Текущий токен -->
+    <div class="settings-row">
+      <div class="settings-row-icon blue">
+        <svg viewBox="0 0 24 24"><path d="M12.65 10A5.99 5.99 0 0 0 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6a5.99 5.99 0 0 0 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+      </div>
+      <div class="settings-row-body">
+        <div class="settings-row-label">Текущий токен</div>
+        <!-- Источник: PropertiesService или ⚙️ Настройки!C14 -->
+        <div class="settings-row-hint" id="token-display">загрузка…</div>
+      </div>
+    </div>
+
+    <!-- Ввод нового токена -->
+    <div class="input-wrap">
+      <div class="input-label">Новый токен WB API</div>
+      <input type="text" class="input-field" id="api-token-input"
+             placeholder="eyJhbGci…"
+             autocomplete="off" autocorrect="off" spellcheck="false">
+      <div class="input-hint">
+        Личный кабинет WB → Профиль → Настройки → Доступ к API<br>
+        Нужные права: Statistics, Analytics, Content, Marketplace, Advertising
+      </div>
+    </div>
+
+    <div class="px-16" style="padding-bottom:14px;">
+      <button class="btn" onclick="saveToken()">Сохранить токен</button>
+    </div>
+
+  </div>
+
+  <!-- Статус сохранения токена -->
+  <div class="status-bar" id="token-status"></div>
+</div>
+
+<!-- ══════ 2. ЗАГРУЗКА ДАННЫХ ══════ -->
+<div class="section mt-16">
+  <div class="section-label">Загрузка данных из WB</div>
+  <div class="settings-card">
+
+    <!-- Период -->
+    <div class="settings-row" style="border-bottom:none; flex-direction:column; align-items:flex-start; gap:6px;">
+      <div class="settings-row-label" style="font-size:12px; color:var(--text-sec);">Выберите период</div>
+    </div>
+
+    <!-- Даты от / до -->
+    <!-- Источники: ⚙️ Настройки!C15 (Начальная дата), C16 (Конечная дата) -->
+    <div class="date-row">
+      <div>
+        <div style="font-size:11px;color:var(--text-sec);margin-bottom:5px;">С (⚙️!C15)</div>
+        <input type="date" class="date-field" id="date-from">
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-sec);margin-bottom:5px;">По (⚙️!C16)</div>
+        <input type="date" class="date-field" id="date-to">
+      </div>
+    </div>
+
+    <!-- Быстрые периоды -->
+    <div style="display:flex;gap:6px;padding:0 16px 14px;flex-wrap:wrap;">
+      <button class="quick-btn" onclick="setQuickPeriod(0)">Сегодня</button>
+      <button class="quick-btn" onclick="setQuickPeriod(7)">7 дней</button>
+      <button class="quick-btn" onclick="setQuickPeriod(30)">30 дней</button>
+      <button class="quick-btn active" onclick="setQuickPeriod('month')">Этот месяц</button>
+    </div>
+
+    <!-- Что загружать -->
+    <div style="border-top:1px solid var(--divider);">
+      <div style="padding:12px 16px 6px; font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-sec);font-weight:600;">Данные для загрузки</div>
+      <div id="load-options">
+        <label class="toggle-row">
+          <input type="checkbox" id="opt-orders" checked>
+          <span class="toggle-label">Заказы</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="opt-sales" checked>
+          <span class="toggle-label">Продажи и возвраты</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="opt-storage" checked>
+          <span class="toggle-label">Платное хранение</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="opt-cards" checked>
+          <span class="toggle-label">Карточки товаров</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="opt-ads" checked>
+          <span class="toggle-label">ВБ.Продвижение (реклама)</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="opt-funnel">
+          <span class="toggle-label">Воронка продаж</span>
+        </label>
+      </div>
+    </div>
+
+    <div style="padding:14px 16px;">
+      <button class="btn" id="load-btn" onclick="startLoading()">
+        ⬇ Загрузить данные
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Прогресс и статус -->
+  <div class="status-bar" id="load-status"></div>
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+</div>
+
+<!-- ══════ 3. О ТАБЛИЦЕ ══════ -->
+<div class="section mt-16">
+  <div class="section-label">Что нужно добавить в таблицу</div>
+  <div class="info-block">
+    <b>Для корректного отображения на главной</b> нужно добавить формулы в лист <b>⚙️ Настройки</b>:<br><br>
+    · <b>C4</b> — К выводу (сумма WB к перечислению)<br>
+    · <b>C5</b> — Заказов сегодня <code>=СЧЁТЕСЛИМН(Заказы!A:A;СЕГОДНЯ())</code><br>
+    · <b>C6</b> — Продаж сегодня<br>
+    · <b>C7</b> — Возвратов сегодня<br>
+    · <b>C8</b> — Браков сегодня
+  </div>
+</div>
+
+<!-- ══════ 4. ПРОЧИЕ НАСТРОЙКИ ══════ -->
+<div class="section mt-16">
+  <div class="section-label">Прочее</div>
+  <div class="settings-card">
+
+    <div class="settings-row" onclick="clearProgress()">
+      <div class="settings-row-icon orange">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      </div>
+      <div class="settings-row-body">
+        <div class="settings-row-label">Сбросить прогресс загрузки</div>
+        <div class="settings-row-hint">Если загрузка зависла</div>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+    </div>
+
+    <div class="settings-row">
+      <div class="settings-row-icon gray">
+        <svg viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+      </div>
+      <div class="settings-row-body">
+        <div class="settings-row-label">Версия</div>
+        <div class="settings-row-hint">CashFlowWB v1.0</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="height:16px;"></div>
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="loadPage('dashboard')">
+    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+    Главная
+  </button>
+  <button class="nav-item" onclick="loadPage('pl')">
+    <svg viewBox="0 0 24 24"><path d="M9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4zm2.5 2.1h-15V5h15v14.1zm0-16.1h-15c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+    P&amp;L
+  </button>
+  <button class="nav-item active" onclick="loadPage('settings')">
+    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+    Настройки
+  </button>
+</nav>
+
+<style>
+  /* ── Toggle rows ── */
+  .toggle-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 16px; cursor: pointer;
+    border-bottom: 1px solid var(--divider);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-row input[type="checkbox"] { display: none; }
+  .toggle-label { font-size: 13px; font-weight: 500; flex: 1; }
+  .toggle-row::after {
+    content: ''; flex-shrink: 0;
+    width: 40px; height: 24px; border-radius: 12px;
+    background: var(--card2); transition: background 0.2s;
+    position: relative;
+  }
+  .toggle-row:has(input:checked)::after {
+    background: var(--primary);
+  }
+  .toggle-row::before {
+    content: '';
+  }
+  /* Quick period buttons */
+  .quick-btn {
+    background: var(--card2); color: var(--text-sec);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 12px; font-size: 12px; font-weight: 500;
+    font-family: inherit; cursor: pointer;
+  }
+  .quick-btn.active {
+    background: var(--primary-dim); color: var(--primary);
+    border-color: rgba(51,119,255,0.3);
+  }
+</style>
+
+<script>
+  // ── Утилиты ────────────────────────────────────────────────────────
+  function showStatus(id, msg, type) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'status-bar visible ' + (type || '');
+  }
+
+  function fmtDate(d) {
+    return d.toISOString().slice(0, 10);
+  }
+
+  function setQuickPeriod(days) {
+    document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    const to  = new Date();
+    let from;
+    if (days === 0) {
+      from = new Date();
+    } else if (days === 'month') {
+      from = new Date(to.getFullYear(), to.getMonth(), 1);
+    } else {
+      from = new Date(to - days * 86400000);
+    }
+    document.getElementById('date-from').value = fmtDate(from);
+    document.getElementById('date-to').value   = fmtDate(to);
+  }
+
+  // ── API Token ──────────────────────────────────────────────────────
+  function loadTokenDisplay() {
+    if (typeof google !== 'undefined' && google.script) {
+      google.script.run
+        .withSuccessHandler(res => {
+          document.getElementById('token-display').textContent =
+            res.masked || 'не задан';
+        })
+        .getMaskedToken();
+    } else {
+      document.getElementById('token-display').textContent = 'dev-режим';
+    }
+  }
+
+  function saveToken() {
+    const token = document.getElementById('api-token-input').value.trim();
+    if (!token) {
+      showStatus('token-status', '⚠ Введите токен', 'error');
+      return;
+    }
+    if (token.length < 30) {
+      showStatus('token-status', '⚠ Токен слишком короткий', 'error');
+      return;
+    }
+    showStatus('token-status', '⏳ Сохранение…', 'loading');
+
+    if (typeof google !== 'undefined' && google.script) {
+      google.script.run
+        .withSuccessHandler(() => {
+          showStatus('token-status', '✅ Токен сохранён!', 'success');
+          document.getElementById('api-token-input').value = '';
+          loadTokenDisplay();
+        })
+        .withFailureHandler(e => {
+          showStatus('token-status', '❌ Ошибка: ' + e.message, 'error');
+        })
+        .saveApiToken(token);
+    } else {
+      setTimeout(() => showStatus('token-status', '✅ (dev) Сохранено', 'success'), 500);
+    }
+  }
+
+  // ── Загрузка данных ────────────────────────────────────────────────
+  function startLoading() {
+    const dateFrom = document.getElementById('date-from').value;
+    const dateTo   = document.getElementById('date-to').value;
+
+    if (!dateFrom || !dateTo) {
+      showStatus('load-status', '⚠ Выберите период', 'error');
+      return;
+    }
+
+    const opts = {
+      dateFrom:   dateFrom,
+      dateTo:     dateTo,
+      loadOrders:  document.getElementById('opt-orders').checked,
+      loadSales:   document.getElementById('opt-sales').checked,
+      loadStorage: document.getElementById('opt-storage').checked,
+      loadCards:   document.getElementById('opt-cards').checked,
+      loadAds:     document.getElementById('opt-ads').checked,
+      loadFunnel:  document.getElementById('opt-funnel').checked,
+    };
+
+    showStatus('load-status', '⬇ Загружаем данные из WB API…', 'loading');
+    document.getElementById('progress-wrap').classList.add('visible');
+    setProgress(5);
+
+    const btn = document.getElementById('load-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Загрузка…';
+
+    if (typeof google !== 'undefined' && google.script) {
+      // Запускаем загрузку — функции из основного Code.gs
+      // Вызываем по очереди через цепочку
+      _runLoadStep(opts, 0);
+    } else {
+      // dev-режим: эмуляция
+      let p = 10;
+      const interval = setInterval(() => {
+        p += 15;
+        setProgress(p);
+        if (p >= 100) {
+          clearInterval(interval);
+          showStatus('load-status', '✅ Данные загружены!', 'success');
+          btn.disabled = false;
+          btn.textContent = '⬇ Загрузить данные';
+        }
+      }, 600);
+    }
+  }
+
+  function _runLoadStep(opts, step) {
+    // Шаги загрузки — соответствуют функциям из основного Code.gs
+    const STEPS = [
+      { name: 'Заказы',                 fn: 'runOrdersLoad',   enabled: opts.loadOrders  },
+      { name: 'Продажи и возвраты',     fn: 'runSalesLoad',    enabled: opts.loadSales   },
+      { name: 'Детализация реализаций', fn: 'runDetailLoad',   enabled: opts.loadSales   },
+      { name: 'Платное хранение',       fn: 'runStorageLoad',  enabled: opts.loadStorage },
+      { name: 'Карточки товаров',       fn: 'runCardsLoad',    enabled: opts.loadCards   },
+      { name: 'ВБ.Продвижение',         fn: 'runAdsLoad',      enabled: opts.loadAds     },
+      { name: 'Воронка продаж',         fn: 'runFunnelLoad',   enabled: opts.loadFunnel  },
+    ].filter(s => s.enabled);
+
+    if (step >= STEPS.length) {
+      setProgress(100);
+      showStatus('load-status', '✅ Всё загружено! Обновите главную.', 'success');
+      const btn = document.getElementById('load-btn');
+      btn.disabled = false;
+      btn.textContent = '⬇ Загрузить данные';
+      return;
+    }
+
+    const cur = STEPS[step];
+    const pct = Math.round(10 + (step / STEPS.length) * 85);
+    setProgress(pct);
+    showStatus('load-status', `⬇ ${cur.name}… (${step + 1}/${STEPS.length})`, 'loading');
+
+    google.script.run
+      .withSuccessHandler(() => _runLoadStep(opts, step + 1))
+      .withFailureHandler(e => {
+        showStatus('load-status', `❌ Ошибка на шаге "${cur.name}": ${e.message}`, 'error');
+        const btn = document.getElementById('load-btn');
+        btn.disabled = false;
+        btn.textContent = '⬇ Загрузить данные';
+      })
+      [cur.fn](opts.dateFrom, opts.dateTo);
+  }
+
+  function setProgress(pct) {
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+
+  // ── Сброс прогресса ────────────────────────────────────────────────
+  function clearProgress() {
+    if (typeof google !== 'undefined' && google.script) {
+      google.script.run
+        .withSuccessHandler(() => showStatus('load-status', '✅ Прогресс сброшен', 'success'))
+        .clearAllProgress();
+    } else {
+      showStatus('load-status', '✅ (dev) Сброс выполнен', 'success');
+    }
+  }
+
+  // ── Навигация ──────────────────────────────────────────────────────
+  function loadPage(page) {
+    if (typeof google !== 'undefined' && google.script) {
+      window.location.href = '?page=' + page;
+    }
+  }
+
+  // ── ИНИЦИАЛИЗАЦИЯ ─────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    loadTokenDisplay();
+    // Устанавливаем период по умолчанию — текущий месяц
+    setQuickPeriod('month');
+    document.querySelector('.quick-btn.active') && document.querySelectorAll('.quick-btn').forEach((b, i) => {
+      if (i === 3) b.classList.add('active');
+    });
+  });
+
+  // Enter → сохранить токен
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.activeElement.id === 'api-token-input') {
+      saveToken();
+    }
+  });
+</script>
+
+</body>
+</html>
