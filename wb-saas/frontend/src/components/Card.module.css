@@ -1,0 +1,44 @@
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.metric {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  transition: border-color 0.15s;
+}
+
+.metric:hover { border-color: var(--accent); }
+
+.metricHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.metricIcon { font-size: 18px; }
+
+.metricLabel {
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 500;
+}
+
+.metricValue {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.metricSub {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 4px;
+}

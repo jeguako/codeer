@@ -1,0 +1,141 @@
+.page {
+  padding: 28px 32px;
+  max-width: 900px;
+}
+
+.header { margin-bottom: 28px; }
+.title { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+.sub { font-size: 14px; color: var(--text2); }
+
+.section { margin-bottom: 20px; }
+.sectionTitle { font-size: 17px; font-weight: 600; margin-bottom: 14px; }
+
+.hint {
+  font-size: 13px;
+  color: var(--text2);
+  background: var(--bg2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.tokenRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.tokenLabel { flex: 1; font-weight: 500; }
+.tokenBadge { color: var(--green); font-size: 12px; }
+.tokenDate { color: var(--text3); font-size: 12px; }
+.deleteBtn {
+  background: transparent;
+  color: var(--text3);
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.deleteBtn:hover { color: var(--red); background: rgba(235,68,90,0.1); }
+
+.tokenForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--accent), var(--blue));
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+.btn:disabled { opacity: 0.5; }
+
+.msg {
+  font-size: 13px;
+  margin-top: 10px;
+  color: var(--text2);
+}
+
+.dateRow {
+  display: flex;
+  gap: 16px;
+}
+
+.dateField {
+  flex: 1;
+}
+
+.dateField label {
+  display: block;
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+/* Sync grid */
+.syncGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.syncCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.syncCard:hover {
+  border-color: var(--accent);
+  background: var(--card2);
+}
+
+.syncIcon { font-size: 28px; }
+.syncLabel { font-size: 14px; font-weight: 600; color: var(--text); }
+.syncHint { font-size: 12px; color: var(--accent2); }
+.syncStatus { font-size: 12px; color: var(--text2); }
+
+/* Jobs */
+.jobList { display: flex; flex-direction: column; gap: 0; }
+
+.jobRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.jobIcon { font-size: 16px; }
+.jobName { flex: 1; min-width: 140px; color: var(--text); }
+.jobStatus { font-size: 12px; }
+.jobStatus.done { color: var(--green); }
+.jobStatus.error { color: var(--red); }
+.jobStatus.running { color: var(--yellow); }
+.jobRows { color: var(--text2); min-width: 60px; }
+.jobDate { color: var(--text3); font-size: 11px; }
+.jobError { width: 100%; color: var(--red); font-size: 12px; background: rgba(235,68,90,0.1); padding: 4px 8px; border-radius: 4px; }
+
+@media (max-width: 600px) {
+  .page { padding: 16px; }
+  .dateRow { flex-direction: column; }
+}

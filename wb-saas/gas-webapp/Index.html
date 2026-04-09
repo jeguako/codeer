@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CashFlow WB</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#16213e;
+  --card:#1e1e35;--card2:#252545;--border:#2d2d50;
+  --text:#e8e8f0;--text2:#9898b8;--text3:#55558a;
+  --accent:#7c5cfc;--accent2:#9b7dff;
+  --green:#2dd36f;--red:#eb445a;--yellow:#ffc409;--orange:#ff6b35;--blue:#428cff;
+  --r:16px;--r2:10px;
+}
+html,body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Inter',sans-serif;font-size:15px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{cursor:pointer;font-family:inherit;border:none;outline:none}
+input,select{background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:var(--r2);padding:10px 14px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--accent)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── Layout ── */
+#app{display:flex;min-height:100vh}
+#sidebar{width:220px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;transition:transform .3s}
+.logo{display:flex;align-items:center;gap:10px;padding:20px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.logo-icon{font-size:24px}.logo-text{font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--accent2),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.side-nav{flex:1;padding:10px 8px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:var(--r2);color:var(--text2);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;border:none;background:transparent;text-align:left;width:100%}
+.nav-item:hover{background:var(--card2);color:var(--text)}
+.nav-item.active{background:rgba(124,92,252,.18);color:var(--accent2)}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);flex-shrink:0}
+#main{flex:1;margin-left:220px;overflow-x:hidden}
+/* Mobile */
+#mobile-top{display:none;padding:13px 16px;background:var(--bg2);border-bottom:1px solid var(--border);align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+#mob-nav-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mob-row{display:flex}
+.mob-btn{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--text3);font-size:10px;flex:1;padding:4px 2px;cursor:pointer;transition:color .15s;border:none;background:transparent}
+.mob-btn.active{color:var(--accent2)}
+.mob-btn-icon{font-size:19px}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99}
+#overlay.show{display:block}
+
+/* ── Pages ── */
+.page{padding:22px 28px 36px;max-width:1440px;display:none}
+.page.active{display:block}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.ph-left{}
+.ph-title{font-size:24px;font-weight:700;margin-bottom:3px}
+.ph-sub{font-size:13px;color:var(--text2)}
+
+/* ── Metrics ── */
+.metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:13px;margin-bottom:20px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:15px 17px;transition:border-color .15s}
+.metric:hover{border-color:rgba(124,92,252,.4)}
+.mh{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.mi{font-size:16px}.ml{font-size:11px;color:var(--text2);font-weight:500;line-height:1.3}
+.mv{font-size:21px;font-weight:700;line-height:1.2}
+.ms{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+.ct{font-size:15px;font-weight:600;margin-bottom:13px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+
+/* ── Expense list ── */
+.exp-list{display:flex;flex-direction:column;gap:0}
+.exp-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)}
+.exp-row:last-child{border:none}
+.exp-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.exp-name{flex:1;font-size:13px;color:var(--text2)}
+.exp-val{font-size:13px;font-weight:600}
+
+/* ── Summary box ── */
+.sum-box{background:var(--bg2);border-radius:var(--r2);padding:12px 14px}
+.sum-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
+.sum-row.total{border-top:1px solid var(--border);padding-top:10px;margin-top:6px;font-weight:700;font-size:14px}
+.kpi-big{font-size:30px;font-weight:800;line-height:1;margin:6px 0 3px}
+
+/* ── Table ── */
+.tw{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{position:sticky;top:0;z-index:2}
+th{background:var(--bg2);color:var(--text2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px;padding:10px 13px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 13px;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+tr:last-child td{border:none}
+tr:hover td{background:rgba(255,255,255,.025)}
+.code{font-family:monospace;font-size:11px;background:var(--bg2);padding:2px 5px;border-radius:4px;color:var(--accent2)}
+.cg{color:var(--green);font-weight:600}
+.cr{color:var(--red);font-weight:600}
+.co{color:var(--orange);font-weight:600}
+.cy{color:var(--yellow)}
+.cb{color:var(--blue)}
+.c2{color:var(--text2)}
+.tr{text-align:right}
+.count-note{font-size:11px;color:var(--text3);padding:8px 4px}
+
+/* ── States ── */
+.ls{text-align:center;color:var(--text2);padding:34px 20px;font-size:14px}
+.es{text-align:center;color:var(--text3);padding:34px 20px;font-size:14px}
+.err{background:rgba(235,68,90,.1);border:1px solid rgba(235,68,90,.25);color:var(--red);padding:12px 16px;border-radius:var(--r2);font-size:13px;margin-bottom:14px}
+
+/* ── Search ── */
+.sb{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.sb input{max-width:260px}
+
+/* ── Refresh btn ── */
+.ref-btn{background:var(--card2);border:1px solid var(--border);color:var(--text2);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500;transition:all .15s;flex-shrink:0}
+.ref-btn:hover{border-color:var(--accent);color:var(--accent2)}
+
+/* ── Badge ── */
+.badge{display:inline-block;padding:2px 7px;border-radius:9px;font-size:11px;font-weight:600}
+.bg{background:rgba(45,211,111,.15);color:var(--green)}
+.br{background:rgba(235,68,90,.15);color:var(--red)}
+.bb{background:rgba(66,140,255,.15);color:var(--blue)}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--card2);border:1px solid var(--border);color:var(--text);padding:9px 18px;border-radius:20px;font-size:13px;z-index:999;opacity:0;pointer-events:none;transition:all .25s;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:none}
+  #main{margin-left:0}
+  #mobile-top{display:flex}
+  #mob-nav-bar{display:block}
+  .page{padding:14px 14px 84px}
+  .row2{grid-template-columns:1fr}
+  .metrics{grid-template-columns:repeat(auto-fill,minmax(145px,1fr))}
+  .ph{flex-direction:column}
+}
+@media(min-width:901px){#sidebar{display:flex!important;transform:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ SIDEBAR ═══════════════════════════════════════════════════ -->
+<aside id="sidebar">
+  <div class="logo">
+    <span class="logo-icon">💸</span>
+    <span class="logo-text">CashFlow WB</span>
+  </div>
+  <nav class="side-nav" id="side-nav"></nav>
+  <div class="sidebar-footer" id="company-label">—</div>
+</aside>
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════ -->
+<main id="main">
+
+  <!-- Mobile top bar -->
+  <div id="mobile-top">
+    <button onclick="openSidebar()" style="background:transparent;color:var(--text2);font-size:22px;line-height:1;padding:0">☰</button>
+    <span style="font-weight:700;font-size:15px;background:linear-gradient(135deg,var(--accent2),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent">💸 CashFlow WB</span>
+  </div>
+
+  <!-- ─ Главная ──────────────────────────────────────────────── -->
+  <div class="page active" id="page-home">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">🏠 Главная</div>
+        <div class="ph-sub">Сводная аналитика Wildberries</div>
+      </div>
+      <button class="ref-btn" onclick="reloadPage('home')">🔄 Обновить</button>
+    </div>
+    <div id="c-home"><div class="ls">⏳ Загружаем данные…</div></div>
+  </div>
+
+  <!-- ─ Реализации ───────────────────────────────────────────── -->
+  <div class="page" id="page-realiz">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">💰 Реализации</div>
+        <div class="ph-sub">Выручка по артикулам (из отчёта WB)</div>
+      </div>
+    </div>
+    <div class="sb"><input id="s-realiz" placeholder="🔍 Артикул, категория…" oninput="filterRows('realiz')"></div>
+    <div id="c-realiz"><div class="ls">⏳ Загружаем…</div></div>
+  </div>
+
+  <!-- ─ Хранение ─────────────────────────────────────────────── -->
+  <div class="page" id="page-storage">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">🏪 Платное хранение</div>
+        <div class="ph-sub">Стоимость хранения по товарам</div>
+      </div>
+    </div>
+    <div class="sb"><input id="s-storage" placeholder="🔍 Артикул, склад…" oninput="filterRows('storage')"></div>
+    <div id="c-storage"><div class="ls">⏳ Загружаем…</div></div>
+  </div>
+
+  <!-- ─ Реклама ──────────────────────────────────────────────── -->
+  <div class="page" id="page-ads">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">📣 ВБ.Продвижение</div>
+        <div class="ph-sub">Расходы и статистика рекламных кампаний</div>
+      </div>
+    </div>
+    <div id="c-ads"><div class="ls">⏳ Загружаем…</div></div>
+  </div>
+
+  <!-- ─ Операции ─────────────────────────────────────────────── -->
+  <div class="page" id="page-ops">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">📝 Операции (ДДС)</div>
+        <div class="ph-sub">Движение денег по счетам</div>
+      </div>
+    </div>
+    <div class="sb"><input id="s-ops" placeholder="🔍 Статья, контрагент…" oninput="filterRows('ops')"></div>
+    <div id="c-ops"><div class="ls">⏳ Загружаем…</div></div>
+  </div>
+
+  <!-- ─ P&L ──────────────────────────────────────────────────── -->
+  <div class="page" id="page-pnl">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">📊 P&L / ДДС</div>
+        <div class="ph-sub">Прибыли, убытки и движение денег по месяцам</div>
+      </div>
+    </div>
+    <div id="c-pnl"><div class="ls">⏳ Загружаем…</div></div>
+  </div>
+
+  <!-- ─ Юнитка ───────────────────────────────────────────────── -->
+  <div class="page" id="page-unit">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">🧮 Юнит-экономика</div>
+        <div class="ph-sub">Себестоимость, маржа и ROI по артикулам</div>
+      </div>
+    </div>
+    <div class="sb"><input id="s-unit" placeholder="🔍 Артикул…" oninput="filterRows('unit')"></div>
+    <div id="c-unit"><div class="ls">⏳ Загружаем…</div></div>
+  </div>
+
+  <!-- ─ Артикулы ─────────────────────────────────────────────── -->
+  <div class="page" id="page-articles">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">📦 Артикулы</div>
+        <div class="ph-sub">Каталог товаров и усредн. себестоимость</div>
+      </div>
+    </div>
+    <div class="sb"><input id="s-articles" placeholder="🔍 Артикул, категория…" oninput="filterRows('articles')"></div>
+    <div id="c-articles"><div class="ls">⏳ Загружаем…</div></div>
+  </div>
+
+  <!-- ─ Поставки ─────────────────────────────────────────────── -->
+  <div class="page" id="page-supplies">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-title">🚚 Поставки</div>
+        <div class="ph-sub">История поставок на склад WB</div>
+      </div>
+    </div>
+    <div class="sb"><input id="s-supplies" placeholder="🔍 Артикул, номер…" oninput="filterRows('supplies')"></div>
+    <div id="c-supplies"><div class="ls">⏳ Загружаем…</div></div>
+  </div>
+
+</main>
+
+<!-- ══ MOBILE NAV ════════════════════════════════════════════════ -->
+<nav id="mob-nav-bar">
+  <div class="mob-row" id="mob-nav"></div>
+</nav>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+const PAGES = [
+  { id:'home',     icon:'🏠', label:'Главная',   mob:true  },
+  { id:'realiz',   icon:'💰', label:'Реализации',mob:true  },
+  { id:'storage',  icon:'🏪', label:'Хранение',  mob:true  },
+  { id:'ads',      icon:'📣', label:'Реклама',   mob:true  },
+  { id:'ops',      icon:'📝', label:'Операции',  mob:true  },
+  { id:'pnl',      icon:'📊', label:'P&L',       mob:false },
+  { id:'unit',     icon:'🧮', label:'Юнитка',    mob:false },
+  { id:'articles', icon:'📦', label:'Артикулы',  mob:false },
+  { id:'supplies', icon:'🚚', label:'Поставки',  mob:false },
+];
+
+let cur = 'home';
+const rows = {}; // raw data per page
+
+// ── Nav ──────────────────────────────────────────────────────
+function buildNav() {
+  const sn = document.getElementById('side-nav');
+  const mn = document.getElementById('mob-nav');
+  sn.innerHTML = mn.innerHTML = '';
+  PAGES.forEach(p => {
+    const active = p.id === cur;
+    const btn = document.createElement('button');
+    btn.className = 'nav-item' + (active ? ' active' : '');
+    btn.innerHTML = `<span class="nav-icon">${p.icon}</span><span>${p.label}</span>`;
+    btn.onclick = () => go(p.id);
+    sn.appendChild(btn);
+    if (p.mob) {
+      const mb = document.createElement('button');
+      mb.className = 'mob-btn' + (active ? ' active' : '');
+      mb.innerHTML = `<span class="mob-btn-icon">${p.icon}</span><span>${p.label}</span>`;
+      mb.onclick = () => go(p.id);
+      mn.appendChild(mb);
+    }
+  });
+}
+
+function go(id) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('page-' + id);
+  if (el) el.classList.add('active');
+  cur = id;
+  buildNav();
+  closeSidebar();
+  lazyLoad(id);
+}
+
+// ── Sidebar ──────────────────────────────────────────────────
+function openSidebar()  { document.getElementById('sidebar').classList.add('open');  document.getElementById('overlay').classList.add('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+
+// ── Format ───────────────────────────────────────────────────
+function rub(n) {
+  const v = parseFloat(n) || 0;
+  if (Math.abs(v) >= 1e6) return (v/1e6).toFixed(1) + ' млн ₽';
+  if (Math.abs(v) >= 1e3) return (v/1e3).toFixed(1) + ' тыс ₽';
+  return v.toFixed(0) + ' ₽';
+}
+function num(n)  { return (parseInt(n)||0).toLocaleString('ru'); }
+function pct(n)  { return (parseFloat(n)||0).toFixed(1) + '%'; }
+function clr(n, invert) {
+  const v = parseFloat(n)||0;
+  return (invert ? v<=0 : v>=0) ? 'cg' : 'cr';
+}
+
+// ── Toast ────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ── Generic table ────────────────────────────────────────────
+function makeTable(data, cols) {
+  if (!data || !data.length) return '<div class="es">📭 Нет данных</div>';
+  const head = cols.map(c => `<th>${c.h}</th>`).join('');
+  const body = data.map(row => {
+    const cells = cols.map(c => {
+      let v = row[c.k] !== undefined ? row[c.k] : '';
+      let cls = c.cls || '';
+      if (c.f === 'rub')  { v = v !== '' && v !== 0 ? rub(v) : '—'; cls = cls || (parseFloat(v)<0?'cr':''); }
+      if (c.f === 'num')  { v = v !== '' ? num(v) : '—'; }
+      if (c.f === 'pct')  { v = v !== '' ? pct(v) : '—'; }
+      if (c.f === 'code') { v = `<span class="code">${v||'—'}</span>`; }
+      if (c.dyn)          { const fc = parseFloat(v); cls = fc > 0 ? 'cg' : fc < 0 ? 'cr' : 'c2'; }
+      return `<td class="${cls}">${v !== null && v !== undefined ? v : '—'}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+  return `<div class="tw"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+// ── Search/filter ────────────────────────────────────────────
+function filterRows(pid) {
+  const q   = (document.getElementById('s-' + pid) || {}).value || '';
+  const lo  = q.toLowerCase();
+  const el  = document.getElementById('c-' + pid);
+  if (!el) return;
+  el.querySelectorAll('tbody tr').forEach(tr => {
+    tr.style.display = !lo || tr.textContent.toLowerCase().includes(lo) ? '' : 'none';
+  });
+}
+
+// ── reload button ────────────────────────────────────────────
+const loaded = new Set();
+function reloadPage(id) { loaded.delete(id); lazyLoad(id); }
+
+// ─────────────────────────────────────────────────────────────
+//  PAGES
+// ─────────────────────────────────────────────────────────────
+
+// ── 1. Главная ───────────────────────────────────────────────
+function loadHome() {
+  document.getElementById('c-home').innerHTML = '<div class="ls">⏳ Загружаем данные…</div>';
+  google.script.run
+    .withSuccessHandler(renderHome)
+    .withFailureHandler(e => { document.getElementById('c-home').innerHTML = `<div class="err">❌ ${e.message||e}</div>`; })
+    .getDashboard();
+}
+
+function renderHome(d) {
+  const el = document.getElementById('c-home');
+  if (!d.ok) { el.innerHTML = `<div class="err">❌ ${d.error}</div>`; return; }
+
+  if (d.companyName) document.getElementById('company-label').textContent = d.companyName;
+  const m = d.metrics;
+  const te = m.totalExp || (m.logistics + m.storage + m.ads + m.penalties + m.acquiring);
+
+  el.innerHTML = `
+  <div class="metrics">
+    <div class="metric"><div class="mh"><span class="mi">💰</span><span class="ml">Выручка к выплате</span></div><div class="mv cg">${rub(m.revenue)}</div></div>
+    <div class="metric"><div class="mh"><span class="mi">✅</span><span class="ml">Прибыль</span></div><div class="mv ${clr(m.profit)}">${rub(m.profit)}</div><div class="ms">Маржа ${pct(m.margin)}</div></div>
+    <div class="metric"><div class="mh"><span class="mi">💸</span><span class="ml">Итого расходы</span></div><div class="mv cr">${rub(te)}</div></div>
+    <div class="metric"><div class="mh"><span class="mi">📦</span><span class="ml">Продажи / Возвраты</span></div><div class="mv">${num(m.sales)} <span style="color:var(--text3);font-size:16px">/ </span><span class="cr">${num(m.returns)}</span></div></div>
+    <div class="metric"><div class="mh"><span class="mi">📈</span><span class="ml">Маржинальность</span></div><div class="mv ${m.margin>=15?'cg':m.margin>=5?'cy':'cr'}">${pct(m.margin)}</div></div>
+    <div class="metric"><div class="mh"><span class="mi">🏦</span><span class="ml">Поступления</span></div><div class="mv">${rub(m.income)}</div></div>
+  </div>
+
+  <div class="row2">
+    <div class="card">
+      <div class="ct">📉 Расходы</div>
+      <div class="exp-list">
+        <div class="exp-row"><span class="exp-dot" style="background:#eb445a"></span><span class="exp-name">🚚 Логистика WB</span><span class="exp-val cr">${rub(m.logistics)}</span></div>
+        <div class="exp-row"><span class="exp-dot" style="background:#ff6b35"></span><span class="exp-name">🏪 Платное хранение</span><span class="exp-val co">${rub(m.storage)}</span></div>
+        <div class="exp-row"><span class="exp-dot" style="background:#ffc409"></span><span class="exp-name">📣 ВБ.Продвижение</span><span class="exp-val cy">${rub(m.ads)}</span></div>
+        <div class="exp-row"><span class="exp-dot" style="background:#428cff"></span><span class="exp-name">⚠️ Штрафы</span><span class="exp-val cb">${rub(m.penalties)}</span></div>
+        <div class="exp-row"><span class="exp-dot" style="background:#7c5cfc"></span><span class="exp-name">💳 Эквайринг</span><span class="exp-val" style="color:var(--accent2)">${rub(m.acquiring)}</span></div>
+        <div class="exp-row" style="font-weight:700"><span class="exp-name">Итого</span><span class="exp-val cr">${rub(te)}</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">💹 Итоговый P&L</div>
+      <div><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Выручка к выплате</div><div class="kpi-big cg">${rub(m.revenue)}</div></div>
+      <div style="margin:14px 0 16px"><div style="font-size:11px;color:var(--text2);margin-bottom:2px">Чистая прибыль</div><div class="kpi-big ${clr(m.profit)}">${rub(m.profit)}</div></div>
+      <div class="sum-box">
+        <div class="sum-row"><span style="color:var(--text2)">Выручка</span><span class="cg">${rub(m.revenue)}</span></div>
+        <div class="sum-row"><span style="color:var(--text2)">Расходы</span><span class="cr">−${rub(te)}</span></div>
+        <div class="sum-row total"><span>Прибыль</span><span class="${clr(m.profit)}">${rub(m.profit)}</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="font-size:11px;color:var(--text3)">Обновлено: ${d.lastUpdate}</div>`;
+}
+
+// ── 2. Реализации по артикулам ───────────────────────────────
+function loadRealiz() {
+  document.getElementById('c-realiz').innerHTML = '<div class="ls">⏳ Агрегируем по артикулам…</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('c-realiz').innerHTML = `<div class="err">❌ ${d.error}</div>`; return; }
+      rows['realiz'] = d.data;
+      toast(`Реализации: ${d.data.length} артикулов`);
+      const cols = [
+        {k:'article',  h:'Артикул',   f:'code'},
+        {k:'subject',  h:'Категория'},
+        {k:'sales',    h:'Продажи',   f:'num',  cls:'cg'},
+        {k:'returns',  h:'Возвраты',  f:'num',  cls:'cr'},
+        {k:'revenue',  h:'Выручка',   f:'rub',  cls:'cg'},
+        {k:'logistics',h:'Логистика', f:'rub',  cls:'co'},
+        {k:'penalties',h:'Штрафы',    f:'rub',  cls:'cr'},
+        {k:'retail',   h:'Оборот',    f:'rub',  cls:'c2'},
+      ];
+      const el = document.getElementById('c-realiz');
+      el.innerHTML = makeTable(d.data, cols) + `<div class="count-note">Показано: ${d.data.length} из ${d.total} артикулов</div>`;
+    })
+    .withFailureHandler(e => { document.getElementById('c-realiz').innerHTML = `<div class="err">❌ ${e.message||e}</div>`; })
+    .getRealizByProduct();
+}
+
+// ── 3. Хранение ─────────────────────────────────────────────
+function loadStorage() {
+  document.getElementById('c-storage').innerHTML = '<div class="ls">⏳ Загружаем…</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('c-storage').innerHTML = `<div class="err">❌ ${d.error}</div>`; return; }
+      rows['storage'] = d.data;
+      toast(`Хранение: ${d.data.length} строк`);
+      if (!d.data.length) { document.getElementById('c-storage').innerHTML = '<div class="es">📭 Нет данных на листе «Платное хранение»</div>'; return; }
+      // Fixed columns for this sheet
+      const cols = [
+        {k:'Дата',             h:'Дата'},
+        {k:'Артикул продавца', h:'Артикул',   f:'code'},
+        {k:'Предмет',          h:'Категория'},
+        {k:'Бренд',            h:'Бренд'},
+        {k:'Склад',            h:'Склад'},
+        {k:'Тип расчета',      h:'Тип'},
+        {k:'Объем (л)',         h:'Объём, л'},
+        {k:'Стоимость (₽)',    h:'Стоимость ₽', f:'rub', cls:'cr'},
+      ];
+      document.getElementById('c-storage').innerHTML = makeTable(d.data, cols) + `<div class="count-note">Показано: ${d.data.length} из ${d.total} строк</div>`;
+    })
+    .withFailureHandler(e => { document.getElementById('c-storage').innerHTML = `<div class="err">❌ ${e.message||e}</div>`; })
+    .getStorage(500);
+}
+
+// ── 4. Реклама (по кампаниям) ────────────────────────────────
+function loadAds() {
+  document.getElementById('c-ads').innerHTML = '<div class="ls">⏳ Загружаем…</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('c-ads').innerHTML = `<div class="err">❌ ${d.error}</div>`; return; }
+      const el = document.getElementById('c-ads');
+      if (!d.data.length) { el.innerHTML = '<div class="es">📭 Нет данных на листе «ВБ.Продвижение»</div>'; return; }
+      toast(`Реклама: ${d.data.length} кампаний`);
+
+      // Summary metrics
+      const totSpend  = d.data.reduce((s,r) => s + (parseFloat(r.spend)||0), 0);
+      const totViews  = d.data.reduce((s,r) => s + (parseInt(r.views)||0), 0);
+      const totClicks = d.data.reduce((s,r) => s + (parseInt(r.clicks)||0), 0);
+      const totOrders = d.data.reduce((s,r) => s + (parseInt(r.orders)||0), 0);
+      const ctr       = totViews > 0 ? (totClicks / totViews * 100) : 0;
+
+      const sumHtml = `
+      <div class="metrics" style="margin-bottom:18px">
+        <div class="metric"><div class="mh"><span class="mi">💸</span><span class="ml">Расход</span></div><div class="mv cr">${rub(totSpend)}</div></div>
+        <div class="metric"><div class="mh"><span class="mi">👁</span><span class="ml">Показы</span></div><div class="mv">${num(totViews)}</div></div>
+        <div class="metric"><div class="mh"><span class="mi">🖱</span><span class="ml">Клики</span></div><div class="mv">${num(totClicks)}</div></div>
+        <div class="metric"><div class="mh"><span class="mi">📊</span><span class="ml">CTR</span></div><div class="mv">${ctr.toFixed(2)}%</div></div>
+        <div class="metric"><div class="mh"><span class="mi">🛒</span><span class="ml">Заказы</span></div><div class="mv cg">${num(totOrders)}</div></div>
+      </div>`;
+
+      const cols = [
+        {k:'id',   h:'ID'},
+        {k:'name', h:'Кампания'},
+        {k:'spend', h:'Расход ₽',   f:'rub', cls:'cr'},
+        {k:'views', h:'Показы',     f:'num'},
+        {k:'clicks',h:'Клики',      f:'num'},
+        {k:'orders',h:'Заказы',     f:'num', cls:'cg'},
+      ];
+      el.innerHTML = sumHtml + makeTable(d.data, cols) + `<div class="count-note">${d.data.length} кампаний</div>`;
+    })
+    .withFailureHandler(e => { document.getElementById('c-ads').innerHTML = `<div class="err">❌ ${e.message||e}</div>`; })
+    .getAdsSummary();
+}
+
+// ── 5. Операции ─────────────────────────────────────────────
+function loadOps() {
+  document.getElementById('c-ops').innerHTML = '<div class="ls">⏳ Загружаем…</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('c-ops').innerHTML = `<div class="err">❌ ${d.error}</div>`; return; }
+      rows['ops'] = d.data;
+      toast(`Операции: ${d.data.length} строк`);
+      if (!d.data.length) { document.getElementById('c-ops').innerHTML = '<div class="es">📭 Нет данных на листе «Операции»</div>'; return; }
+      // Headers: Дата, Сумма, Счёт, Статья, Контрагент, Комментарий
+      const cols = [
+        {k:'Дата',        h:'Дата'},
+        {k:'Сумма',       h:'Сумма ₽',     f:'rub', dyn:true},
+        {k:'Счёт',        h:'Счёт'},
+        {k:'Статья',      h:'Статья'},
+        {k:'Контрагент',  h:'Контрагент'},
+        {k:'Комментарий', h:'Комментарий'},
+      ];
+      document.getElementById('c-ops').innerHTML = makeTable(d.data, cols) + `<div class="count-note">Показано: ${d.data.length} из ${d.total} строк</div>`;
+    })
+    .withFailureHandler(e => { document.getElementById('c-ops').innerHTML = `<div class="err">❌ ${e.message||e}</div>`; })
+    .getOperations(500);
+}
+
+// ── 6. P&L ──────────────────────────────────────────────────
+function loadPnl() {
+  document.getElementById('c-pnl').innerHTML = '<div class="ls">⏳ Загружаем P&L…</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      const el = document.getElementById('c-pnl');
+      if (!d.ok) { el.innerHTML = `<div class="err">❌ ${d.error}</div>`; return; }
+      if (!d.data.length) { el.innerHTML = '<div class="es">📭 Нет данных на листе «P&LДДС»</div>'; return; }
+
+      // d.headers = [year, Jan, Feb, ...], d.data = [{_row, Jan:val, Feb:val...}]
+      const months = d.headers.slice(1).filter(h => h && h !== '0');
+      const head = '<th>Статья P&L</th>' + months.map(m => `<th class="tr">${m}</th>`).join('');
+      const body = d.data.map(row => {
+        const isHeader = row['_row'] && !months.some(m => parseFloat(row[m]));
+        if (isHeader) return `<tr style="background:var(--bg3)"><td colspan="${months.length+1}" style="font-weight:600;color:var(--accent2);padding:10px 13px">${row['_row']}</td></tr>`;
+        const cells = months.map(m => {
+          const v = parseFloat(row[m]) || 0;
+          const cls = v > 0 ? 'cg' : v < 0 ? 'cr' : 'c2';
+          return `<td class="tr ${cls}">${v ? rub(v) : '—'}</td>`;
+        }).join('');
+        return `<tr><td>${row['_row']}</td>${cells}</tr>`;
+      }).join('');
+
+      el.innerHTML = `<div class="tw"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+    })
+    .withFailureHandler(e => { document.getElementById('c-pnl').innerHTML = `<div class="err">❌ ${e.message||e}</div>`; })
+    .getPnL();
+}
+
+// ── 7. Юнитка ────────────────────────────────────────────────
+function loadUnit() {
+  document.getElementById('c-unit').innerHTML = '<div class="ls">⏳ Загружаем…</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('c-unit').innerHTML = `<div class="err">❌ ${d.error}</div>`; return; }
+      rows['unit'] = d.data;
+      toast(`Юнитка: ${d.data.length} артикулов`);
+      if (!d.data.length) { document.getElementById('c-unit').innerHTML = '<div class="es">📭 Нет данных на листе «Юнитка»</div>'; return; }
+      const cols = [
+        {k:'Артикул продавца',    h:'Артикул',    f:'code'},
+        {k:'Наименование товара', h:'Название'},
+        {k:'Полная С/С на ед.',   h:'С/С ед.',    f:'rub'},
+        {k:'Целевая цена продажи',h:'Цена прод.', f:'rub'},
+        {k:'Маржа на ед.',        h:'Маржа ед.',  f:'rub', dyn:true},
+        {k:'Маржинальность',      h:'Маржа %',    f:'pct', dyn:true},
+        {k:'ROI',                 h:'ROI %',       f:'pct', dyn:true},
+        {k:'Комиссия ВБ %',       h:'Комм. WB %', f:'pct'},
+        {k:'Логистика ВБ',        h:'Логист.',    f:'rub', cls:'co'},
+        {k:'Процент выкупа %',    h:'Выкуп %',    f:'pct'},
+      ];
+      document.getElementById('c-unit').innerHTML = makeTable(d.data, cols) + `<div class="count-note">${d.data.length} артикулов</div>`;
+    })
+    .withFailureHandler(e => { document.getElementById('c-unit').innerHTML = `<div class="err">❌ ${e.message||e}</div>`; })
+    .getUnitEcon(200);
+}
+
+// ── 8. Артикулы ──────────────────────────────────────────────
+function loadArticles() {
+  document.getElementById('c-articles').innerHTML = '<div class="ls">⏳ Загружаем…</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('c-articles').innerHTML = `<div class="err">❌ ${d.error}</div>`; return; }
+      rows['articles'] = d.data;
+      if (!d.data.length) { document.getElementById('c-articles').innerHTML = '<div class="es">📭 Нет данных на листе «Артикулы»</div>'; return; }
+      const cols = [
+        {k:'Бренд',                      h:'Бренд'},
+        {k:'Артикул',                    h:'Артикул',  f:'code'},
+        {k:'Категория',                  h:'Категория'},
+        {k:'Размер',                     h:'Размер'},
+        {k:'Артикул ВБ',                 h:'Артикул WB'},
+        {k:'Усредненная себестоимость',  h:'Ср. С/С',  f:'rub'},
+      ];
+      document.getElementById('c-articles').innerHTML = makeTable(d.data, cols) + `<div class="count-note">${d.data.length} товаров</div>`;
+    })
+    .withFailureHandler(e => { document.getElementById('c-articles').innerHTML = `<div class="err">❌ ${e.message||e}</div>`; })
+    .getArticles(300);
+}
+
+// ── 9. Поставки ──────────────────────────────────────────────
+function loadSupplies() {
+  document.getElementById('c-supplies').innerHTML = '<div class="ls">⏳ Загружаем…</div>';
+  google.script.run
+    .withSuccessHandler(d => {
+      if (!d.ok) { document.getElementById('c-supplies').innerHTML = `<div class="err">❌ ${d.error}</div>`; return; }
+      rows['supplies'] = d.data;
+      if (!d.data.length) { document.getElementById('c-supplies').innerHTML = '<div class="es">📭 Нет данных на листе «Поставки»</div>'; return; }
+      const cols = [
+        {k:'Номер поставки',   h:'№ поставки'},
+        {k:'Дата прихода на WB', h:'Дата WB'},
+        {k:'Артикул',          h:'Артикул',   f:'code'},
+        {k:'Кол-во шт',        h:'Кол-во',    f:'num'},
+        {k:'Сумма закупки',    h:'Сумма заку',f:'rub'},
+        {k:'Итого С/С',        h:'Итого С/С', f:'rub', cls:'co'},
+      ];
+      document.getElementById('c-supplies').innerHTML = makeTable(d.data, cols) + `<div class="count-note">${d.data.length} строк</div>`;
+    })
+    .withFailureHandler(e => { document.getElementById('c-supplies').innerHTML = `<div class="err">❌ ${e.message||e}</div>`; })
+    .getSupplies(200);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LAZY LOADER
+// ═══════════════════════════════════════════════════════════════
+const loaders = {
+  home:     loadHome,
+  realiz:   loadRealiz,
+  storage:  loadStorage,
+  ads:      loadAds,
+  ops:      loadOps,
+  pnl:      loadPnl,
+  unit:     loadUnit,
+  articles: loadArticles,
+  supplies: loadSupplies,
+};
+
+function lazyLoad(id) {
+  if (loaded.has(id)) return;
+  loaded.add(id);
+  const fn = loaders[id];
+  if (fn) fn();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  buildNav();
+  // Show mobile top bar on small screens
+  if (window.innerWidth <= 900) document.getElementById('mobile-top').style.display = 'flex';
+  window.addEventListener('resize', () => {
+    document.getElementById('mobile-top').style.display = window.innerWidth <= 900 ? 'flex' : 'none';
+  });
+  lazyLoad('home');
+});
+</script>
+</body>
+</html>
